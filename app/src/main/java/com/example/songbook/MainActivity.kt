@@ -14,6 +14,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.songbook.ui.theme.SongbookTheme
 import androidx.navigation.compose.NavHost
@@ -46,7 +48,10 @@ class MainActivity : ComponentActivity() {
                             AddSongScreen(
                                 viewModel = viewModel,
                                 onSongAdded = {
-                                    navController.popBackStack() // go back after adding
+                                    navController.popBackStack()
+                                },
+                                onBack = {
+                                    navController.popBackStack()
                                 }
                             )
                         }
@@ -60,6 +65,9 @@ class MainActivity : ComponentActivity() {
                                     viewModel = viewModel,
                                     songId = songId,
                                     onSongUpdated = {
+                                        navController.popBackStack()
+                                    },
+                                    onBack = {
                                         navController.popBackStack()
                                     }
                                 )
@@ -94,6 +102,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongListScreen(
     viewModel: SongViewModel,
@@ -101,35 +110,66 @@ fun SongListScreen(
     onViewSongClicked: (Int) -> Unit
 ) {
     val songs by viewModel.songs.collectAsState()
+    var searchQuery by remember { mutableStateOf("")}
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                ),
+                title = {
+                    Text("Śpiewnik", fontWeight = FontWeight.Bold)
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAddSongClicked,
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Song")
+            }
+        }
+    ) { innerPadding ->
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
+        Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            items(songs) { song ->
-                song.id?.let { id ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp)
-                            .clickable { onViewSongClicked(id) },
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(text = song.title, style = MaterialTheme.typography.titleLarge)
+            Column {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it},
+                    label = { Text("Szukaj po tytule") },
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxWidth()
+                )
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    val queriedSongs = songs.filter { song ->
+                        song.title.contains(searchQuery, ignoreCase = true)
+                    }
+                    items(queriedSongs) { song ->
+                        song.id?.let { id ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp)
+                                    .clickable { onViewSongClicked(id) },
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text(text = song.title, style = MaterialTheme.typography.titleLarge)
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-
-        FloatingActionButton(
-            onClick = onAddSongClicked,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Add Song")
-        }
     }
+
 }

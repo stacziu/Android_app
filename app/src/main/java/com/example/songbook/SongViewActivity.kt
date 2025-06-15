@@ -40,19 +40,19 @@ fun ViewScreen(
         Text(text = song.title, style = MaterialTheme.typography.headlineMedium)
         Spacer(Modifier.height(8.dp))
         Text(text = song.chords, fontWeight = FontWeight.Bold)
-        Text(text = "Tuning: ${song.tuning}", fontWeight = FontWeight.Bold)
-        Text(text = "Capo: ${song.capo}", fontWeight = FontWeight.Bold)
+        Text(text = "Strojenie: ${song.tuning}", fontWeight = FontWeight.Bold)
+        Text(text = "Kapodaster: ${song.capo}", fontWeight = FontWeight.Bold)
 
         Spacer(Modifier.height(16.dp))
         LyricsWithChords(lyrics = song.lyrics)
 
         Spacer(Modifier.height(16.dp))
         Button(onClick = { onEditClicked(songId) }) {
-            Text("Edit")
+            Text("Edytuj")
         }
         Spacer(Modifier.height(8.dp))
         Button(onClick = onBack) {
-            Text("Back")
+            Text("Wróć")
         }
         Spacer(Modifier.height(8.dp))
         Button(
@@ -64,7 +64,7 @@ fun ViewScreen(
                 containerColor = MaterialTheme.colorScheme.error
             )
         ) {
-            Text("Delete")
+            Text("Usuń")
         }
     }
 }
@@ -84,12 +84,12 @@ fun parseLyrics(lyrics: String): AnnotatedString {
     var lastIndex = 0
 
     for (match in pattern.findAll(lyrics)) {
-        val chord = match.groups[1]?.value ?: ""
+        val marked_text = match.groups[1]?.value ?: ""
 
         builder.append(lyrics.substring(lastIndex, match.range.first))
 
         builder.pushStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary))
-        builder.append("$chord")
+        builder.append("$marked_text")
         builder.pop()
         lastIndex = match.range.last + 1
     }

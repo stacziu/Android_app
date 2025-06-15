@@ -7,13 +7,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.sp
 
 
 @Composable
 fun EditSongScreen(
     viewModel: SongViewModel,
     songId: Int,
-    onSongUpdated: () -> Unit
+    onSongUpdated: () -> Unit,
+    onBack: () -> Unit
 ) {
     val song = viewModel.songs.collectAsState().value.find { it.id == songId }
 
@@ -37,35 +39,36 @@ fun EditSongScreen(
         OutlinedTextField(
             value = title,
             onValueChange = { title = it },
-            label = { Text("Title") },
+            label = { Text("Tytuł") },
             modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
             value = chords,
             onValueChange = { chords = it },
-            label = { Text("Chords") },
+            label = { Text("Chwyty") },
             modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
             value = lyrics,
             onValueChange = { lyrics = it },
-            label = { Text("Lyrics") },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp),
+                .height(400.dp),
             singleLine = false,
-            maxLines = 10
+            maxLines = 10,
+            label = { Text("Tekst") },
+            placeholder = { Text("Zapisz tekst piosenki a elementy, które chcesz wyróżnić zapisz w []") },
         )
         OutlinedTextField(
             value = tuning,
             onValueChange = { tuning = it },
-            label = { Text("Tuning") },
+            label = { Text("Strojenie") },
             modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
             value = capo,
             onValueChange = { capo = it },
-            label = { Text("Capo") },
+            label = { Text("Kapodaster") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -85,6 +88,10 @@ fun EditSongScreen(
             modifier = Modifier.align(Alignment.End)
         ) {
             Text("Save")
+        }
+        Spacer(Modifier.height(8.dp))
+        Button(onClick = onBack) {
+            Text("Wróć")
         }
     }
 }
